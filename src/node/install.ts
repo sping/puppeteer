@@ -45,11 +45,35 @@ export async function downloadBrowser(): Promise<void> {
     process.env.PUPPETEER_DOWNLOAD_PATH ||
     process.env.npm_config_puppeteer_download_path ||
     process.env.npm_package_config_puppeteer_download_path;
-  const browserFetcher = (puppeteer as PuppeteerNode).createBrowserFetcher({
-    product,
-    host: downloadHost,
-    path: downloadPath,
-  });
+
+  const platfrom_env = process.env.PUPPETEER_FORCE_PLATFORM;
+  let platform;
+  if (platfrom_env) {
+    if (
+      platfrom_env === 'win64' ||
+      platfrom_env === 'linux' ||
+      platfrom_env === 'mac' ||
+      platfrom_env === 'win32' ||
+      'win64'
+    ) {
+      platform = platfrom_env;
+    }
+    if (platform) {
+      logPolitely(`Forcing to download for platform ${platform}`);
+    }
+  }
+  const browserFetcher = platform
+    ? (puppeteer as PuppeteerNode).createBrowserFetcher({
+        product,
+        platform,
+        host: downloadHost,
+        path: downloadPath,
+      })
+    : (puppeteer as PuppeteerNode).createBrowserFetcher({
+        product,
+        host: downloadHost,
+        path: downloadPath,
+      });
   const revision = await getRevision();
   await fetchBinary(revision);
 
@@ -102,6 +126,7 @@ export async function downloadBrowser(): Promise<void> {
           `${supportedProducts[product]} (${revisionInfo.revision}) downloaded to ${revisionInfo.folderPath}`
         );
       }
+
       localRevisions = localRevisions.filter(
         (revision) => revision !== revisionInfo.revision
       );
