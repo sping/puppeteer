@@ -25,6 +25,7 @@ import createHttpsProxyAgent, {
   HttpsProxyAgentOptions,
 } from 'https-proxy-agent';
 import { getProxyForUrl } from 'proxy-from-env';
+import { Platform } from './BrowserFetcher.js';
 
 const supportedProducts = {
   chrome: 'Chromium',
@@ -47,14 +48,13 @@ export async function downloadBrowser(): Promise<void> {
     process.env.npm_package_config_puppeteer_download_path;
 
   const platfrom_env = process.env.PUPPETEER_FORCE_PLATFORM;
-  let platform;
+  let platform: Platform;
   if (platfrom_env) {
     if (
       platfrom_env === 'win64' ||
       platfrom_env === 'linux' ||
       platfrom_env === 'mac' ||
-      platfrom_env === 'win32' ||
-      'win64'
+      platfrom_env === 'win32'
     ) {
       platform = platfrom_env;
     }
